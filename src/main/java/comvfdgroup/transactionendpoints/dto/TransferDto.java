@@ -1,10 +1,13 @@
-package comvfdgroup.transactionendpoints.model;
+package comvfdgroup.transactionendpoints.dto;
 
+import comvfdgroup.transactionendpoints.model.TransactionType;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 public class TransferDto {

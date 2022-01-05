@@ -24,4 +24,14 @@ public class AccountInformation {
     private Long recipientAccountNo;
     @OneToOne(mappedBy = "accountInformation")
     private User user;
+
+    public AccountInformation(Integer id, TransactionType transactionType, LocalDate transactionDate, Double balance, Double transactionAmount, Long depositorAccountNo, Long recipientAccountNo) {
+        this.id = id;
+        this.transactionType = transactionType;
+        this.transactionDate = transactionDate;
+        this.balance = balance;
+        this.transactionAmount = transactionAmount;
+        this.depositorAccountNo = depositorAccountNo;
+        this.recipientAccountNo = recipientAccountNo;
+    }
 }

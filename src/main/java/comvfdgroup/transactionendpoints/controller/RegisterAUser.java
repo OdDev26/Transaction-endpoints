@@ -1,8 +1,11 @@
 package comvfdgroup.transactionendpoints.controller;
 
-import comvfdgroup.transactionendpoints.model.User;
-import comvfdgroup.transactionendpoints.model.UserDto;
+import comvfdgroup.transactionendpoints.dto.SuccessMessageDto;
+import comvfdgroup.transactionendpoints.dto.UserDto;
+import comvfdgroup.transactionendpoints.exception.ApiRequestException;
 import comvfdgroup.transactionendpoints.service.UserRegistrationService;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,7 +19,14 @@ public class RegisterAUser {
     }
 
     @PostMapping("/register")
-    public void registerUser(@RequestBody UserDto userDto){
+    public ResponseEntity<?> registerUser(@RequestBody UserDto userDto){
         userRegistrationService.registerUser(userDto);
+        if(HttpStatus.OK.is2xxSuccessful()){
+            SuccessMessageDto successMessageDto = new SuccessMessageDto();
+            successMessageDto.setMessage("00, User was successfully registered");
+            successMessageDto.setStatus(HttpStatus.OK);
+            return new ResponseEntity<>(successMessageDto, HttpStatus.OK);
+        }
+        throw new ApiRequestException();
     }
 }

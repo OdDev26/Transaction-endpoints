@@ -1,9 +1,13 @@
 package comvfdgroup.transactionendpoints.service;
 
+import comvfdgroup.transactionendpoints.dto.*;
+import comvfdgroup.transactionendpoints.exception.ApiRequestException;
 import comvfdgroup.transactionendpoints.model.*;
 
 import comvfdgroup.transactionendpoints.repository.AccountInformationRepo;
 import comvfdgroup.transactionendpoints.repository.UserRepository;
+import lombok.AllArgsConstructor;
+import lombok.NoArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,16 +15,18 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 @Service
+@NoArgsConstructor
 public class TransactionService {
-    @Autowired
-    private AccountInformationRepo accountInformationRepo;
 
-    @Autowired
+    private AccountInformationRepo accountInformationRepo;
     private UserRepository userRepository;
+    @Autowired
+    public TransactionService(AccountInformationRepo accountInformationRepo, UserRepository userRepository) {
+        this.accountInformationRepo = accountInformationRepo;
+        this.userRepository = userRepository;
+    }
 
     public void depositToAccount(DepositDto depositDto, Integer userId) {
-//        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
-        //dd MMM uuuu
         User user = new User();
         user.setUserId(userId);
 
@@ -65,9 +71,13 @@ public class TransactionService {
 
     public void withdrawAmount(WithdrawalDto withdrawalDto, Integer accountId) {
 
-
         if (accountInformationRepo.findById(accountId).get().getBalance() == 0.00)
-            throw new IllegalStateException("Insufficient balance");
+
+            throw new ApiRequestException("01, transaction failed due to insufficient balance");
+
+        if(accountInformationRepo.findById(accountId).get().getBalance()<withdrawalDto.getAmount()){
+            throw new ApiRequestException("01, transaction failed due to insufficient balance");
+        }
 
         if (accountInformationRepo.findById(accountId).get().getBalance() > 0.00) {
             AccountInformation accountInformation = new AccountInformation();
@@ -76,7 +86,6 @@ public class TransactionService {
             accountInformation.setBalance(accountInformationRepo.findById(accountId).get().getBalance() - withdrawalDto.getAmount());
             accountInformation.setTransactionType(withdrawalDto.getTransactionType());
             accountInformation.setTransactionAmount(withdrawalDto.getAmount());
-            // accountInformation.setBalance((accountInformationRepo.findAccountInformationById(accountId)).getBalance()-transferDto.getAmount());
             accountInformation.setDepositorAccountNo(null);
             accountInformation.setRecipientAccountNo(null);
             accountInformation.setTransactionDate(LocalDate.parse(withdrawalDto.getTransactionDate()));
@@ -89,8 +98,13 @@ public class TransactionService {
     }
 
     public void transferAmount(TransferDto transferDto, Integer accountId) {
-        if (accountInformationRepo.findById(accountId).get().getBalance() == 0.00)
-            throw new IllegalStateException("Insufficient balance");
+            if (accountInformationRepo.findById(accountId).get().getBalance() == 0.00) {
+                throw new ApiRequestException("01, transaction failed due to insufficient balance");
+            }
+
+        if(accountInformationRepo.findById(accountId).get().getBalance() < transferDto.getAmount()){
+            throw new ApiRequestException("01, transaction failed due to insufficient balance");
+        }
 
         if (accountInformationRepo.findById(accountId).get().getBalance() > 0.00) {
             AccountInformation accountInformation = new AccountInformation();
@@ -113,7 +127,7 @@ public class TransactionService {
 
         Optional<AccountInformation> accountInformation = accountInformationRepo.findById(accountInfoId);
         if (accountInformation.isEmpty()) {
-            throw new IllegalStateException("No such transaction exist");
+            throw new ApiRequestException("01, No such account information exist");
         }
 
         if (accountInformation.isPresent()) {
@@ -132,9 +146,12 @@ public class TransactionService {
            accountInformation.get().setRecipientAccountNo(updateTransactionDto.getRecipientAccountNo());
            accountInformation.get().setBalance(updateTransactionDto.getBalance());
            accountInformation.get().setTransactionType(updateTransactionDto.getTransactionType());
+
+           accountInformationRepo.save(accountInformation.get());
        }
-
-       accountInformationRepo.save(accountInformation.get());
-
+        else {
+            throw new ApiRequestException("01 Update failed, no such transaction information present");
+       }
     }
+
 }
