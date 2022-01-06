@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 public class CreateATransaction {
     private TransactionService transactionService;
 
-
     public CreateATransaction(TransactionService transactionService) {
         this.transactionService = transactionService;
     }

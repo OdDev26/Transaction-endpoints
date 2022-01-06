@@ -167,34 +167,6 @@ class TransactionServiceTest {
         );
         verify(accountInformationRepo).save(accountInformation1);
     }
-
-
-    @Test
-    @Disabled
-    public void shouldDeleteTransactionIfTransactionDetailsPresent(){
-
-        AccountInformation accountInformation= new AccountInformation(1,TransactionType.DEPOSIT,
-                LocalDate.now(),5000.00,
-                1000.00,12345L,12345L);
-
-        UserDto userDto= new UserDto("Mike","Egbe-iyon", LocalDate.of(2022,1,4),"Male",12345L
-        );
-
-        User user= new User();
-        user.setUserId(1);
-        user.setLastName(userDto.getLastName());
-        user.setFirstName(userDto.getFirstName());
-        user.setAccountNo(userDto.getAccountNo());
-        user.setAccountInformation(accountInformation);
-        user.setGender(userDto.getGender());
-        user.setDateOfBirth(userDto.getDateOfBirth());
-        given(userRepository.findById(1)).willReturn(Optional.of(user));
-
-        given(accountInformationRepo.findById(1)).willReturn(Optional.of(accountInformation));
-
-        transactionService.deleteTransaction(1);
-        verify(accountInformationRepo).delete(accountInformation);
-    }
     @Test
     void wouldUpdateTransaction(){
 
